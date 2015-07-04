@@ -26,14 +26,13 @@ module Helpers
       return @@logs_path if @@logs_path
 
       @@logs_path = ENV['logs_path']
-      @@logs_path ||= if File.writable_real?('/logs')
-                        '/logs'
-                      else
-                        logs_path = File.join($lib_path, '..', 'logs')
-                        system("mkdir -p #{logs_path}")
 
-                        logs_path
-                      end
+      unless @@logs_path
+        @@logs_path = File.expand_path('..')
+        system("mkdir -p #{@@logs_path}")
+      end
+
+      @@logs_path
     end
   end
 end
