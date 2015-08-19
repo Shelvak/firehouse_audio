@@ -6,9 +6,22 @@ module AudioPlayer
         on.message do |channel, file_path|
           p 'mensaje', file_path
 
+          p 'Starting broadcast'
+          start_broadcast!
+          p 'Playing'
           play_file full_file_path_for(file_path)
+          p 'Stoping'
+          stop_broadcast!
         end
       end
+    end
+
+    def start_broadcast
+      redis.publish('start-broadcast', 'go on!')
+    end
+
+    def start_broadcast
+      redis.publish('stop-broadcast', 'die!')
     end
 
     def redis
@@ -27,7 +40,8 @@ module AudioPlayer
 
         Helpers.log "Playing file: #{file}"
 
-        `mplayer -noconsolecontrols -quiet #{file} &`
+        `mplayer -noconsolecontrols -quiet #{file}`
+        sleep 2
       rescue => ex
         p 'Bombita rodrigues', ex
         Helpers.error 'Playing error: ', ex
