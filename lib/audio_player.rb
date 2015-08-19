@@ -16,11 +16,11 @@ module AudioPlayer
       end
     end
 
-    def start_broadcast
+    def start_broadcast!
       redis.publish('start-broadcast', 'go on!')
     end
 
-    def start_broadcast
+    def stop_broadcast!
       redis.publish('stop-broadcast', 'die!')
     end
 
