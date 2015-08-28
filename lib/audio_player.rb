@@ -1,9 +1,9 @@
 module AudioPlayer
   class << self
     def start
-      p "Iniciando"
+      p 'Iniciando'
       redis.subscribe('interventions:play_audio_file') do |on|
-        on.message do |channel, file_path|
+        on.message do |_, file_path|
           p 'mensaje', file_path
 
           p 'Starting broadcast'
@@ -35,17 +35,24 @@ module AudioPlayer
     end
 
     def play_file(file)
-      begin
-        raise "File not found #{file}" unless File.exist?(file)
+      fail "File not found #{file}" unless File.exist?(file)
 
-        Helpers.log "Playing file: #{file}"
+      Helpers.log "Playing file: #{file}"
+      sleep 1
+      params = %w(
+        --play-and-exit
+        --sout='#transcode{vcodec=none,acodec=mp3,ab=96,channels=1,samplerate=11025}:udp{dst=192.168.1.255:8000, mux=raw}'
+        --no-sout-rtp-sap
+        --no-sout-standard-sap
+        --ttl=1
+        --sout-keep
+      )
 
-        `mplayer -noconsolecontrols -quiet #{file}`
-        sleep 2
-      rescue => ex
-        p 'Bombita rodrigues', ex
-        Helpers.error 'Playing error: ', ex
-      end
+      `su - vlc -c "cvlc #{file} #{params.join(' ')}"`
+      sleep 2
+    rescue => ex
+      p 'Bombita rodrigues', ex
+      Helpers.error 'Playing error: ', ex
     end
   end
 end
