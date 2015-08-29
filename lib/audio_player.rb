@@ -39,17 +39,18 @@ module AudioPlayer
 
       Helpers.log "Playing file: #{file}"
       sleep 1
+
       params = %w(
         --play-and-exit
-        --sout='#transcode{vcodec=none,acodec=mp3,ab=96,channels=1,samplerate=11025}:udp{dst=192.168.1.255:8000, mux=raw}'
+        --sout='#transcode{vcodec=none,acodec=mp3,ab=128,channels=2,samplerate=44100}:udp{dst=BROADCAST_IP:8000, mux=raw}'
         --no-sout-rtp-sap
         --no-sout-standard-sap
         --ttl=1
         --sout-keep
-      )
+      ).join(' ').gsub('BROADCAST_IP', $FIREHOUSE_HOST)
 
-      `su - vlc -c "cvlc #{file} #{params.join(' ')}"`
-      sleep 2
+      `su - vlc -c "cvlc #{file} #{params}"`
+      sleep 1
     rescue => ex
       p 'Bombita rodrigues', ex
       Helpers.error 'Playing error: ', ex

@@ -13,4 +13,6 @@ Bugsnag.configure do |config|
 end
 
 $REDIS_HOST = ENV['REDIS_PORT_6379_TCP_ADDR'] || 'localhost'
+$FIREHOUSE_HOST = ENV['SERVER_HOST'] || 'localhost'
+
 AudioPlayer.start
