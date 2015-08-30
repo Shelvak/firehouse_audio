@@ -47,7 +47,7 @@ module AudioPlayer
         --no-sout-standard-sap
         --ttl=1
         --sout-keep
-      ).join(' ').gsub('BROADCAST_IP', $FIREHOUSE_HOST)
+      ).join(' ').gsub('BROADCAST_IP', '192.168.1.255')
 
       `su - vlc -c "cvlc #{file} #{params}"`
       sleep 1
