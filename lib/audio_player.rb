@@ -72,7 +72,7 @@ module AudioPlayer
         --sout-mux-caching=10
       ).join(' ').gsub('BROADCAST_IP', '192.168.1.255')
 
-      `su -c "cvlc #{file} #{params.join(' ')}" vlc`
+      `su -c "cvlc #{file} #{params}" vlc`
       sleep 1
     rescue => ex
       p 'Bombita rodrigues', ex
