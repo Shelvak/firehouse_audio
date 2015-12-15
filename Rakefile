@@ -14,6 +14,7 @@ end
 
 $lib_path = File.expand_path('..', __FILE__)
 $REDIS_HOST = ENV['REDIS_PORT_6379_TCP_ADDR'] || 'localhost'
+BROADCAST_IP = ENV['BROADCAST_IP'] || '10.0.1.255'
 
 puts $lib_path
 AudioPlayer.start

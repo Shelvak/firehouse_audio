@@ -3,6 +3,8 @@ module AudioPlayer
     def start
       p 'Iniciando'
 
+      p "BROAD IP"
+      p BROADCAST_IP
       p 'Force stop subscribe'
       force_stop_playing
 
@@ -70,7 +72,7 @@ module AudioPlayer
         --ttl=1
         --sout-keep
         --sout-mux-caching=10
-      ).join(' ').gsub('BROADCAST_IP', '192.168.1.255')
+      ).join(' ').gsub('BROADCAST_IP', BROADCAST_IP)
 
       `su -c "cvlc #{file} #{params}" vlc`
       sleep 1
