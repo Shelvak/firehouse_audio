@@ -74,6 +74,8 @@ module AudioPlayer
         --sout-mux-caching=10
       ).join(' ').gsub('BROADCAST_IP', BROADCAST_IP)
 
+      Helpers.log "Exec #{params}"
+
       `su -c "cvlc #{file} #{params}" vlc`
       sleep 1
     rescue => ex
