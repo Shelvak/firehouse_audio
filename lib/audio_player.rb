@@ -76,7 +76,7 @@ module AudioPlayer
 
       Helpers.log "Exec #{params}"
 
-      `su -c "cvlc #{file} #{params}" vlc`
+      `cvlc #{file} #{params}`
       sleep 1
     rescue => ex
       p 'Bombita rodrigues', ex
