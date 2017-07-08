@@ -21,6 +21,7 @@ module AudioPlayer
         on.message do |_, msg|
           Helpers.log 'Forcing stop broadcast...'
           `killall vlc`
+          `killall cvlc`
         end
       end
     end
