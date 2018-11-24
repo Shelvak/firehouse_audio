@@ -3,18 +3,18 @@ module AudioPlayer
     def start
       p 'Iniciando'
 
-      p "BROAD IP"
-      p BROADCAST_IP
-      p 'Force stop subscribe'
-      force_stop_playing
+      # p "BROAD IP"
+      # p BROADCAST_IP
+      # p 'Force stop subscribe'
+      # force_stop_playing
 
       p 'Play audio subscribe'
       play_audio_file_subscribe!
     end
 
-    def force_stop_playing
-      Thread.new { force_stop_playing! }
-    end
+    # def force_stop_playing
+    #   Thread.new { force_stop_playing! }
+    # end
 
     def force_stop_playing!
       redis.subscribe('force-stop-broadcast') do |on|
@@ -31,25 +31,25 @@ module AudioPlayer
         on.message do |_, file_path|
           p 'mensaje', file_path
 
-          p 'Starting broadcast'
-          start_broadcast!
+          # p 'Starting broadcast'
+          # start_broadcast!
           p 'Playing'
           play_file full_file_path_for(file_path)
-          p 'Stoping'
-          stop_broadcast!
+          # p 'Stoping'
+          # stop_broadcast!
         end
       end
     end
 
-    def start_broadcast!
-      Helpers.log 'Starting broadcast...'
-      redis.publish('start-broadcast', 'go on!')
-    end
+    # def start_broadcast!
+    #   Helpers.log 'Starting broadcast...'
+    #   redis.publish('start-broadcast', 'go on!')
+    # end
 
-    def stop_broadcast!
-      Helpers.log 'Stoping broadcast...'
-      redis.publish('stop-broadcast', 'die!')
-    end
+    # def stop_broadcast!
+    #   Helpers.log 'Stoping broadcast...'
+    #   redis.publish('stop-broadcast', 'die!')
+    # end
 
     def redis
       Redis.new(host: $REDIS_HOST)
