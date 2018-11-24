@@ -6,15 +6,15 @@ module AudioPlayer
       # p "BROAD IP"
       # p BROADCAST_IP
       # p 'Force stop subscribe'
-      # force_stop_playing
+      force_stop_playing
 
       p 'Play audio subscribe'
       play_audio_file_subscribe!
     end
 
-    # def force_stop_playing
-    #   Thread.new { force_stop_playing! }
-    # end
+    def force_stop_playing
+      Thread.new { force_stop_playing! }
+    end
 
     def force_stop_playing!
       redis.subscribe('force-stop-broadcast') do |on|
