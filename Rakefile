@@ -9,7 +9,7 @@ require File.expand_path('../lib/audio_player', __FILE__)
 require File.expand_path('../lib/helpers', __FILE__)
 
 Bugsnag.configure do |config|
-   config.api_key = '3d5e73415ee46de2a3ef87b4d6b55a95'
+   config.api_key = ENV['BUGSNAG_KEY']
 end
 
 $lib_path = File.expand_path('..', __FILE__)
