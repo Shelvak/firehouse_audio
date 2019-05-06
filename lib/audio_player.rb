@@ -35,6 +35,9 @@ module AudioPlayer
           # start_broadcast!
           p 'Playing'
           play_file full_file_path_for(file_path)
+
+
+          redis.publish('interventions:lights:start_loop', 'start')
           # p 'Stoping'
           # stop_broadcast!
         end
