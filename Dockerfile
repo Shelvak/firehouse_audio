@@ -12,7 +12,9 @@ RUN useradd --create-home --shell /bin/bash -p '*' vlc
 
 RUN mkdir -p /firehouse_audio
 WORKDIR /firehouse_audio
-ADD . ./
+ADD . .
+
+RUN chmod 777 /firehouse_audio/start.sh
 
 RUN bundle install && chown -R vlc:vlc /firehouse_audio
 
