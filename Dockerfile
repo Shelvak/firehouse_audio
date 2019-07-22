@@ -1,4 +1,4 @@
-FROM ruby:2.6-stretch
+FROM ruby:2.6-slim
 
 MAINTAINER aaraujo@protonmail.ch
 
@@ -12,9 +12,7 @@ RUN useradd --create-home --shell /bin/bash -p '*' vlc
 
 RUN mkdir -p /firehouse_audio
 WORKDIR /firehouse_audio
-ADD . .
-
-RUN chmod 777 /firehouse_audio/start.sh
+ADD . ./
 
 RUN bundle install && chown -R vlc:vlc /firehouse_audio
 

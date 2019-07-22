@@ -1,90 +1,87 @@
 module AudioPlayer
-  class << self
-    def start
-      p 'Iniciando'
+  extend self
 
-      # p "BROAD IP"
-      # p BROADCAST_IP
-      # p 'Force stop subscribe'
-      force_stop_playing
+  def start
+    Helpers.log('Iniciando')
 
-      p 'Play audio subscribe'
-      play_audio_file_subscribe!
-    end
+    Helpers.log('Subscribing force stop')
+    force_stop_playing
 
-    def force_stop_playing
-      Thread.new { force_stop_playing! }
-    end
+    Helpers.log('Subscribing test channel')
+    subscribe_test_channel
 
-    def force_stop_playing!
-      redis.subscribe('force-stop-broadcast') do |on|
-        on.message do |_, msg|
-          Helpers.log 'Forcing stop broadcast...'
-          `killall vlc`
-          `killall cvlc`
-        end
+    Helpers.log('Subscribing play audio')
+    play_audio_file_subscribe!
+  end
+
+  def force_stop_playing
+    Thread.new { force_stop_playing! }
+  end
+
+  def force_stop_playing!
+    Helpers.redis.subscribe('force-stop-broadcast') do |on|
+      on.message do |_, msg|
+        Helpers.log 'Forcing stop broadcast...'
+        `killall -q vlc`
+        `killall -q cvlc`
       end
     end
+  end
 
-    def play_audio_file_subscribe!
-      redis.subscribe('interventions:play_audio_file') do |on|
-        on.message do |_, file_path|
-          p 'mensaje', file_path
+  def subscribe_test_channel
+    Thread.new { subscribe_test_channel! }
+  end
 
-          # p 'Starting broadcast'
-          # start_broadcast!
-          p 'Playing'
-          play_file full_file_path_for(file_path)
+  def subscribe_test_channel!
+    Helpers.redis.subscribe('services-test:audio') do |on|
+      on.message do |_, msg|
+        # La idea de esto es recibir un msg del tipo { channel: 'consume-123123123', message: 'PING' }
+        parsed = JSON.parse(msg) rescue {}
+        Helpers.log "Received test msg: #{msg} responding to #{parsed['channel']}: PONG"
 
-
-          redis.publish('interventions:lights:start_loop', 'start')
-          # p 'Stoping'
-          # stop_broadcast!
-        end
+        Helpers.redis.publish(parsed['channel'], 'PONG')
       end
     end
+  end
 
-    # def start_broadcast!
-    #   Helpers.log 'Starting broadcast...'
-    #   redis.publish('start-broadcast', 'go on!')
-    # end
+  def play_audio_file_subscribe!
+    Helpers.redis.subscribe('interventions:play_audio_file') do |on|
+      on.message do |_, file_path|
+        Helpers.log "Received msg: #{file_path}"
 
-    # def stop_broadcast!
-    #   Helpers.log 'Stoping broadcast...'
-    #   redis.publish('stop-broadcast', 'die!')
-    # end
+        play_file full_file_path_for(file_path)
+      end
+    end
+  end
 
-    def redis
-      Redis.new(host: $REDIS_HOST)
+  def full_file_path_for(file_path)
+    father = ENV['firehouse_path'] || File.expand_path('..', __FILE__)
+
+    File.join(father, file_path)
+  end
+
+  def play_file(file)
+    unless File.exist?(file)
+      Helpers.log "File not found #{file}"
+      return
     end
 
-    def full_file_path_for(file_path)
-      father = ENV['firehouse_path'] || File.expand_path('..', __FILE__)
+    Helpers.log "Playing file: #{file}"
+    params = %w(
+      --play-and-exit
+      --sout='#transcode{vcodec=none,acodec=mp3}:udp{dst=BROADCAST_IP:8000, mux=raw, caching=10}'
+      --no-sout-rtp-sap
+      --no-sout-standard-sap
+      --ttl=1
+      --sout-keep
+      --sout-mux-caching=10
+    ).join(' ').gsub('BROADCAST_IP', BROADCAST_IP)
 
-      File.join(father, file_path)
-    end
+    Helpers.log "Exec #{params}"
 
-    def play_file(file)
-      fail "File not found #{file}" unless File.exist?(file)
-
-      Helpers.log "Playing file: #{file}"
-      params = %w(
-        --play-and-exit
-        --sout='#transcode{vcodec=none,acodec=mp3}:udp{dst=BROADCAST_IP:8000, mux=raw, caching=10}'
-        --no-sout-rtp-sap
-        --no-sout-standard-sap
-        --ttl=1
-        --sout-keep
-        --sout-mux-caching=10
-      ).join(' ').gsub('BROADCAST_IP', BROADCAST_IP)
-
-      Helpers.log "Exec #{params}"
-
-      `cvlc #{file} #{params}`
-      sleep 1
-    rescue => ex
-      p 'Bombita rodrigues', ex
-      Helpers.error 'Playing error: ', ex
-    end
+    `cvlc #{file} #{params}`
+  rescue => ex
+    p 'Bombita rodrigues', ex
+    Helpers.error 'Playing error: ', ex
   end
 end

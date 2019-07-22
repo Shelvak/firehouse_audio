@@ -1,26 +1,29 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    awesome_print (1.8.0)
     bugsnag (2.8.6)
       multi_json (~> 1.0)
-    coderay (1.1.0)
-    method_source (0.8.2)
+    byebug (11.0.1)
+    irb (1.0.0)
+    json (2.2.0)
     multi_json (1.11.0)
-    pry (0.10.1)
-      coderay (~> 1.1.0)
-      method_source (~> 0.8.1)
-      slop (~> 3.4)
-    pry-nav (0.2.4)
-      pry (>= 0.9.10, < 0.11.0)
     rake (10.4.2)
     redis (3.2.1)
-    slop (3.6.0)
+    thread (0.2.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   bugsnag
-  pry-nav
+  byebug
+  irb
+  json
   rake
   redis
+  thread
+
+BUNDLED WITH
+   2.0.1
