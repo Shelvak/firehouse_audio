@@ -14,8 +14,8 @@ ADD . ./
 
 RUN chmod 777 /firehouse_audio/start.sh
 
-RUN gem install bundler:2.0.1
+RUN gem update --system && gem install bundler:2.1.4
 
-RUN bundle install && chown -R vlc:vlc /firehouse_audio
+RUN bundle install --jobs 8 && chown -R vlc:vlc /firehouse_audio
 
 CMD ["/firehouse_audio/start.sh"]
