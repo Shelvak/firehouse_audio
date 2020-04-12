@@ -1,21 +1,31 @@
 module AudioPlayer
-  extend self
+  module_function
+
+  $threads = {}
+  Thread.abort_on_exception = true
 
   def start
     Helpers.log('Iniciando')
 
-    Helpers.log('Subscribing force stop')
     force_stop_playing
 
-    Helpers.log('Subscribing test channel')
     subscribe_test_channel
 
-    Helpers.log('Subscribing play audio')
     play_audio_file_subscribe!
+  rescue => e
+    Helpers.error(e) rescue nil # just in case
+
+    $threads.each { |_, t| t.kill rescue nil }
+    $threads = {}
+
+    retry
   end
 
   def force_stop_playing
-    Thread.new { force_stop_playing! }
+    Helpers.thread { force_stop_playing! }
+  rescue => e
+    Helpers.before_retry(e)
+    retry
   end
 
   def force_stop_playing!
@@ -26,10 +36,16 @@ module AudioPlayer
         `killall -q cvlc`
       end
     end
+  rescue => e
+    Helpers.before_retry(e)
+    retry
   end
 
   def subscribe_test_channel
-    Thread.new { subscribe_test_channel! }
+    Helpers.thread { subscribe_test_channel! }
+  rescue => e
+    Helpers.before_retry(e)
+    retry
   end
 
   def subscribe_test_channel!
@@ -42,9 +58,14 @@ module AudioPlayer
         Helpers.redis.publish(parsed['channel'], 'PONG')
       end
     end
+  rescue => e
+    Helpers.before_retry(e)
+    retry
   end
 
   def play_audio_file_subscribe!
+    Helpers.log "Starting AudioPlayer.play_audio_file_subscribe!"
+
     Helpers.redis.subscribe('interventions:play_audio_file') do |on|
       on.message do |_, file_path|
         Helpers.log "Received msg: #{file_path}"
@@ -52,6 +73,9 @@ module AudioPlayer
         play_file full_file_path_for(file_path)
       end
     end
+  rescue => e
+    Helpers.before_retry(e)
+    retry
   end
 
   def full_file_path_for(file_path)
