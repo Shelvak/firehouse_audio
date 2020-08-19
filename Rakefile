@@ -33,4 +33,6 @@ task :start do
   end
 
   AudioPlayer.start
+
+  exit 1
 end

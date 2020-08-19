@@ -15,9 +15,14 @@ module AudioPlayer
   rescue => e
     Helpers.error(e) rescue nil # just in case
 
-    $threads.each { |_, t| t.kill rescue nil }
+    $threads.each do |name, t|
+      Helpers.log "Killing thread: #{name}"
+      t.kill rescue nil
+      Helpers.log "Killed thread: #{name}"
+    end
     $threads = {}
 
+    Helpers.log "Retrying"
     retry
   end
 
